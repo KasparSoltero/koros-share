@@ -1,0 +1,42 @@
+{
+    "khoros": {
+        "language": "Greek",
+        "origin": "χορός",
+        "english": "dance, chorus",
+        "latin": "chorus",
+        "PIE_root": "*gher-"
+    },
+    "kyklos": {
+        "language": "Greek",
+        "origin": "κύκλος",
+        "english": "cycle, circle",
+        "latin": "circulus",
+        "PIE": "*kʷékʷlos",
+        "PIE_root": "kʷel"
+    },
+    "cakra": {
+        "language": "Sanskrit",
+        "origin": "चक्र",
+        "english": "wheel",
+        "PIE": "*kʷékʷlos",
+        "PIE_root": "kʷel"
+    },
+    "hwēol": {
+        "language": "Old English",
+        "english": "wheel",
+        "PIE": "*kʷékʷlos",
+        "PIE_root": "*kʷel"
+    },
+    "charis": {
+        "language": "Greek",
+        "origin": "χάρις",
+        "english": "grace, kindness",
+        "PIE_root": "*gher-"
+    },
+    "chiral": {
+        "language": "Greek",
+        "origin": "χειρ",
+        "english": "hand",
+        "PIE_root": "*ǵhesr-"
+    }
+}
