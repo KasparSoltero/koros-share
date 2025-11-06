@@ -132,11 +132,12 @@ body {
     text-decoration: none;
     color: inherit;
     border: 2px solid white;
-    padding: 0.3rem 0.3rem;
     border-radius: 3px;
-    font-family: Arial, sans-serif;
-    font-variant-emoji: text;
-    font-weight: bold;
+    display: inline-table;
+}
+#content a svg {
+    vertical-align: middle;
+    padding: 0.5rem;
 }
 #content p {
     margin: 0.3rem 0;
