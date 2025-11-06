@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             imageElements[nextIndex].classList.add('active');
             imageElements[currentIndex].classList.remove('active');
             currentIndex = nextIndex;
-        }, 6000); // Change image every 6 seconds
+        }, 4000); // Change image every 4 seconds
     }
     startSlideshow();
 
@@ -82,7 +82,16 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error loading koros.json:', error);
         });
 
-    function decodeText(text, container, baseDelay = 0) {
+    function getRandomPosition() {
+        const angle = Math.random() * Math.PI * 2;
+        // x offset from 15 to 20 vw + or -
+        // y offset from 10 to 20 vw + or -
+        const randomX = (15 + Math.random() * 5) * (Math.random() < 0.5 ? -1 : 1);
+        const randomY = (10 + Math.random() * 10) * (Math.random() < 0.5 ? -1 : 1);
+        return { x: randomX, y: randomY };
+    }
+
+    function pixelateText(text, container, delay = 0) {
         container.innerHTML = '';
         const chars = text.split('');
         const pixels = [];
@@ -91,16 +100,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const span = document.createElement('span');
             span.className = 'pixel';
             span.textContent = char;
-            span.style.opacity = '0';
             container.appendChild(span);
             pixels.push(span);
         });
 
-        // More dramatic stochastic reveal
+        // Animate in with random delays
         pixels.forEach((pixel, i) => {
-            const randomDelay = baseDelay + Math.random() * 1200 + i * 30;
+            const randomDelay = delay + Math.random() * 800;
             setTimeout(() => {
-                pixel.style.transition = 'opacity 0.4s ease';
+                pixel.style.transition = 'opacity 0.3s ease';
                 pixel.style.opacity = '1';
             }, randomDelay);
         });
@@ -110,26 +118,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function animateOut(element, callback) {
         const pixels = element.querySelectorAll('.pixel');
-        const labels = element.querySelectorAll('.etymology-stage-label');
         let completed = 0;
-        const totalElements = pixels.length;
         
-        // Fade out all pixels with random timing
         pixels.forEach((pixel, i) => {
-            const randomDelay = Math.random() * 600;
+            const randomDelay = Math.random() * 500;
             setTimeout(() => {
-                pixel.style.transition = 'opacity 0.3s ease';
+                pixel.style.transition = 'opacity 0.2s ease';
                 pixel.style.opacity = '0';
                 completed++;
-                if (completed === totalElements && callback) {
-                    setTimeout(callback, 300);
+                if (completed === pixels.length && callback) {
+                    setTimeout(callback, 200);
                 }
             }, randomDelay);
         });
 
-        // Fade out labels
-        labels.forEach(label => {
-            label.style.transition = 'opacity 0.4s ease';
+        // Fade out labels and wordkey
+        const fadeOutElements = element.querySelectorAll('.etymology-label, .word-key');
+        fadeOutElements.forEach(label => {
+            label.style.transition = 'opacity 0.5s ease';
             label.style.opacity = '0';
         });
     }
@@ -143,74 +149,59 @@ document.addEventListener('DOMContentLoaded', function() {
         displayDiv.className = 'word-display';
         titleContainer.appendChild(displayDiv);
 
-        // Build etymology chain from ancient to modern
-        const etymologyChain = [];
-        
-        // Define the hierarchy and display probabilities
-        const stages = [
-            { key: 'PIE_root', label: 'PIE Root', probability: 1.0 },
-            { key: 'PIE', label: 'Proto-Indo-European', probability: 0.9 },
-            { key: 'latin', label: 'Latin', probability: 0.7 },
-            { key: 'english', label: 'English', probability: 0.5 }
-        ];
-
-        stages.forEach(stage => {
-            if (data[stage.key] && Math.random() < stage.probability) {
-                etymologyChain.push({
-                    label: stage.label,
-                    value: data[stage.key]
-                });
-            }
-        });
-
-        // Main word at top (the origin/current word)
+        // Main word (origin)
         const mainWord = document.createElement('div');
         mainWord.className = 'main-word';
         displayDiv.appendChild(mainWord);
-        
         const displayText = data.origin || wordKey;
-        decodeText(displayText, mainWord, 0);
+        pixelateText(displayText, mainWord, 0);
 
-        // Word key below main word with slight delay
+        // wordKey below main word
         const wordKeyEl = document.createElement('div');
         wordKeyEl.className = 'word-key';
+        wordKeyEl.textContent = wordKey;
         displayDiv.appendChild(wordKeyEl);
-        decodeText(wordKey, wordKeyEl, 400);
+        
+        // Fade in after main word
+        setTimeout(() => {
+            wordKeyEl.style.opacity = '0.7';
+        }, 1000);
 
-        // Create vertical etymology chain
-        const chainContainer = document.createElement('div');
-        chainContainer.className = 'etymology-chain';
-        displayDiv.appendChild(chainContainer);
+        // Etymology labels with preferred order and frequency
+        const preferredOrder = ['english', 'latin', 'PIE', 'PIE_root'];
+        const displayProbabilities = {
+            'english': 0.5,
+            'latin': 0.7,
+            'PIE': 0.9,
+            'PIE_root': 1.0
+        };
 
-        etymologyChain.forEach((stage, index) => {
-            const stageDiv = document.createElement('div');
-            stageDiv.className = 'etymology-stage';
-            
-            // Add slight random horizontal offset for organic feel
-            const jitter = (Math.random() - 0.5) * 3; // ±1.5vw
-            stageDiv.style.transform = `translateX(${jitter}vw)`;
-            
+        const selectedLabels = [];
+        // Iterate in reverse to animate the most ancient first
+        for (let i = preferredOrder.length - 1; i >= 0; i--) {
+            const key = preferredOrder[i];
+            if (data[key] && Math.random() < displayProbabilities[key]) {
+                selectedLabels.push({ key, value: data[key] });
+            }
+        }
+
+        selectedLabels.forEach((item, i) => {
             const label = document.createElement('div');
-            label.className = 'etymology-stage-label';
-            label.textContent = stage.label;
-            label.style.opacity = '0';
-            stageDiv.appendChild(label);
+            label.className = 'etymology-label';
+            const pos = getRandomPosition();
+            label.style.left = `calc(50% + ${pos.x}vw)`;
+            label.style.top = `calc(50% + ${pos.y}vw)`;
+            label.style.transform = 'translate(-50%, -50%)';
             
-            const value = document.createElement('div');
-            value.className = 'etymology-stage-value';
-            stageDiv.appendChild(value);
+            const keyName = item.key.replace('_', ' ');
+            label.textContent = `${keyName}: ${item.value}`;
             
-            chainContainer.appendChild(stageDiv);
-            
-            // Stagger the appearance of each stage
-            const stageDelay = 800 + index * 600;
-            
+            displayDiv.appendChild(label);
+
             setTimeout(() => {
-                label.style.transition = 'opacity 0.6s ease';
-                label.style.opacity = '0.7';
-            }, stageDelay);
-            
-            decodeText(stage.value, value, stageDelay + 200);
+                label.style.transition = 'opacity 1s ease';
+                label.style.opacity = '0.9';
+            }, 1200 + i * 400); // Staggered fade-in
         });
 
         // Schedule transition to next word
@@ -223,8 +214,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentWordIndex = (currentWordIndex + 1) % words.length;
                 displayWord(words[currentWordIndex]);
             });
-        }, 8500); // Slightly longer to accommodate the chain
+        }, 5000);
     }
+
 
     // Iridescent cursor effect
     const cursorEffect = document.createElement('div');
@@ -241,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('mousemove', (e) => {
         cursorX = e.clientX;
         cursorY = e.clientY;
+        // cursorEffect.style.opacity = '1';
     });
 
     document.addEventListener('mousedown', () => {
@@ -277,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const dx = cursorX - currentX;
         const dy = cursorY - currentY;
         
-        currentX += dx * 0.1;
+        currentX += dx * 0.1; // Smooth easing
         currentY += dy * 0.1;
         
         cursorEffect.style.left = currentX + 'px';
