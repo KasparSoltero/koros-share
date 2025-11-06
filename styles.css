@@ -122,7 +122,7 @@ body {
     justify-content: center;
     margin-left: calc(50% - min(25vw, 25vh));
     /* margin-top: min(75vh, 75vw); */
-    bottom: 2rem;
+    bottom: 3rem;
     padding: 1rem;
     max-width: min(50vw, 50vh);
     line-height: 2rem;
