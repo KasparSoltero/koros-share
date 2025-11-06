@@ -40,7 +40,9 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: 50vh;
+    max-height: 50vh;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     pointer-events: none;
@@ -132,7 +134,12 @@ body {
     border: 2px solid white;
     padding: 0.3rem 0.3rem;
     border-radius: 3px;
+    font-family: Arial, sans-serif;
+    font-variant-emoji: text;
     font-weight: bold;
+}
+#content p {
+    margin: 0.3rem 0;
 }
 
 .cursor-effect {
@@ -171,6 +178,10 @@ body {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .word-display {
+        gap: 0.3rem;
+    }
+
     .main-word {
         font-size: 3rem;
     }
